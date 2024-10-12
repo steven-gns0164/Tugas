@@ -1,0 +1,57 @@
+import heapq
+
+def dijkstra(graph, start, goal):
+    # Inisialisasi jarak dari start ke semua node sebagai infinity, kecuali start
+    distances = {node: float('inf') for node in graph}
+    distances[start] = 0
+    # Inisialisasi antrian prioritas
+    priority_queue = [(0, start)]
+    # Melacak jalur terpendek
+    previous_nodes = {node: None for node in graph}
+
+    while priority_queue:
+        # Ambil node dengan jarak terpendek
+        current_distance, current_node = heapq.heappop(priority_queue)
+
+        # Jika sudah sampai ke tujuan
+        if current_node == goal:
+            path = []
+            while current_node:
+                path.append(current_node)
+                current_node = previous_nodes[current_node]
+            return path[::-1], distances[goal]
+
+        # Jika jarak saat ini lebih besar dari yang sudah ditemukan, lewati
+        if current_distance > distances[current_node]:
+            continue
+
+        # Periksa tetangga-tetangga jika ada
+        for neighbor, weight in graph[current_node].items():
+            distance = current_distance + weight
+            if distance < distances[neighbor]:
+                distances[neighbor] = distance
+                previous_nodes[neighbor] = current_node
+                heapq.heappush(priority_queue, (distance, neighbor))
+
+    return "Jalur tidak ditemukan", float('inf')
+
+# Definisi graf berdasarkan gambar dengan bobot pada setiap jalur
+graph = {
+    'X': {'V1': 2, 'V4': 4, 'V6': 3},
+    'V1': {'V2': 4},
+    'V2': {'Y': 4, 'V3': 2},
+    'V3': {'Y': 3},
+    'V4': {'V5': 5},
+    'V5': {'Y': 1},
+    'V6': {'V7': 2},
+    'V7': {'V5': 4, 'V8': 3},
+    'V5': {'Y': 1},
+    'V8': {'Y': 4},
+    'Y': {}
+}
+
+# Contoh pencarian jalur dari X ke Y
+start_node = 'X'
+goal_node = 'Y'
+path, total_weight = dijkstra(graph, start_node, goal_node)
+print(f"Jalur terpendek dari {start_node} ke {goal_node}: {path} dengan total bobot: {total_weight}")
